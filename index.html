@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>你是我的第五个季节</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
+        :root {
+          --bg-color: #FFEBE5;
+          --primary-color: #FFC9F0;
+          --secondary-color: #C7EE65;
+          --text-color: #a23107;
+          --cat-ear-color: #FFC9F0;
+        }
+
+        body {
+          font-family: 'DotGothic16', sans-serif;
+          background-color: var(--bg-color);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          margin: 0;
+          transition: background-color 0.5s ease;
+          padding: 20px;
+        }
+
+        .game-container {
+          width: 100%;
+          max-width: 550px;
+          height: 550px;
+          background-color: rgba(255, 255, 255, 0.7);
+          border: 4px solid var(--primary-color);
+          border-radius: 20px;
+          box-shadow: 0 0 0 8px var(--secondary-color), 0 0 20px rgba(0,0,0,0.1);
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 25px;
+          box-sizing: border-box;
+          position: relative;
+          overflow: hidden;
+          transition: border-color 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .game-container::before, .game-container::after {
+          content: '(ㅇㅅㅇ)';
+          font-size: 24px;
+          color: var(--cat-ear-color);
+          position: absolute;
+          top: -15px;
+          transition: color 0.5s ease;
+        }
+
+        .game-container::before {
+          left: 30px;
+          transform: rotate(-15deg);
+        }
+
+        .game-container::after {
+          right: 30px;
+          transform: rotate(15deg);
+        }
+
+        .response-area {
+          position: absolute;
+          top: 25px;
+          left: 25px;
+          right: 25px;
+          display: none; /* Initially hidden */
+          align-items: center;
+          background: rgba(255, 255, 255, 0.8);
+          border-radius: 12px;
+          padding: 10px;
+          border: 2px dashed var(--primary-color);
+          transition: border-color 0.5s ease;
+        }
+
+        .char-avatar {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          border: 3px solid var(--secondary-color);
+          object-fit: cover;
+          margin-right: 15px;
+          flex-shrink: 0;
+          transition: border-color 0.5s ease;
+          cursor: pointer;
+        }
+
+        .char-dialogue {
+          font-size: 14px;
+          color: var(--text-color);
+          flex-grow: 1;
+          transition: color 0.5s ease;
+        }
+        
+        .activity-display {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          height: 100%;
+          padding-top: 50px;
+        }
+
+        .activity-text {
+          font-size: 24px;
+          color: var(--text-color);
+          margin-bottom: 20px;
+          animation: text-flow 2s infinite ease-in-out;
+          transition: color 0.5s ease;
+        }
+        
+        @keyframes text-flow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        
+        .cat-decoration {
+          font-size: 18px;
+          color: var(--primary-color);
+          margin-bottom: 30px;
+          transition: color 0.5s ease;
+        }
+
+        .action-button {
+          font-family: 'DotGothic16', sans-serif;
+          background-color: var(--primary-color);
+          color: var(--text-color);
+          border: 3px solid var(--secondary-color);
+          border-radius: 15px;
+          padding: 15px 30px;
+          font-size: 18px;
+          cursor: pointer;
+          transition: transform 0.2s, background-color 0.5s, border-color 0.5s, color 0.5s;
+          box-shadow: 0 4px 0 0 var(--text-color);
+          position: relative;
+        }
+        
+        .action-button:active {
+          transform: translateY(4px);
+          box-shadow: none;
+        }
+
+        .season-selector {
+          display: flex;
+          justify-content: space-around;
+          padding: 10px 0 0 0;
+          border-top: 2px dashed var(--secondary-color);
+          transition: border-color 0.5s ease;
+        }
+
+        .season-btn {
+          font-family: 'DotGothic16', sans-serif;
+          background: none;
+          border: none;
+          font-size: 22px;
+          cursor: pointer;
+          opacity: 0.7;
+          transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .season-btn.active {
+          opacity: 1;
+          transform: scale(1.2);
+        }
+        
+        .season-btn:hover {
+          opacity: 1;
+        }
+        
+        /* 自定义头像上传样式 */
+        .avatar-upload-container {
+          position: absolute;
+          top: 15px;
+          right: 15px;
+          z-index: 10;
+        }
+        
+        .upload-btn {
+          background-color: var(--primary-color);
+          color: var(--text-color);
+          border: 2px solid var(--secondary-color);
+          border-radius: 10px;
+          padding: 5px 10px;
+          font-size: 12px;
+          cursor: pointer;
+          font-family: 'DotGothic16', sans-serif;
+          transition: all 0.3s;
+        }
+        
+        .upload-btn:hover {
+          background-color: var(--secondary-color);
+        }
+        
+        #avatar-upload {
+          display: none;
+        }
+        
+        /* 头像上传提示 */
+        .avatar-tooltip {
+          position: absolute;
+          top: 35px;
+          right: 0;
+          background-color: rgba(255, 255, 255, 0.95);
+          color: var(--text-color);
+          padding: 10px;
+          border-radius: 8px;
+          font-size: 12px;
+          width: 140px;
+          border: 1px solid var(--primary-color);
+          box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+          opacity: 0;
+          transition: opacity 0.3s;
+          pointer-events: none;
+        }
+        
+        .char-avatar:hover + .avatar-tooltip {
+          opacity: 1;
+        }
+        
+        /* 头像上传模态框 */
+        .avatar-modal {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 100;
+          justify-content: center;
+          align-items: center;
+        }
+        
+        .modal-content {
+          background-color: var(--bg-color);
+          padding: 25px;
+          border-radius: 20px;
+          border: 4px solid var(--primary-color);
+          box-shadow: 0 0 0 8px var(--secondary-color), 0 0 30px rgba(0,0,0,0.2);
+          max-width: 400px;
+          width: 90%;
+          text-align: center;
+        }
+        
+        .modal-title {
+          font-size: 22px;
+          color: var(--text-color);
+          margin-bottom: 20px;
+        }
+        
+        .avatar-preview {
+          width: 150px;
+          height: 150px;
+          border-radius: 50%;
+          border: 4px solid var(--secondary-color);
+          object-fit: cover;
+          margin: 0 auto 20px;
+          background-color: white;
+        }
+        
+        .modal-buttons {
+          display: flex;
+          justify-content: center;
+          gap: 15px;
+          margin-top: 20px;
+        }
+        
+        .modal-btn {
+          padding: 10px 20px;
+          border: none;
+          border-radius: 10px;
+          font-family: 'DotGothic16', sans-serif;
+          cursor: pointer;
+          transition: all 0.3s;
+        }
+        
+        .confirm-btn {
+          background-color: var(--primary-color);
+          color: var(--text-color);
+        }
+        
+        .cancel-btn {
+          background-color: #e0e0e0;
+          color: #333;
+        }
+        
+        .modal-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+        }
+        
+        /* 备用头像样式 */
+        .fallback-avatar {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background-color: var(--primary-color);
+          color: var(--text-color);
+          font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        
+        <!-- 头像上传按钮 -->
+        <div class="avatar-upload-container">
+            <label for="avatar-upload" class="upload-btn">上传头像</label>
+            <input type="file" id="avatar-upload" accept="image/*">
+        </div>
+        
+        <div class="response-area" id="response-area">
+            <img src="https://drive.google.com/thumbnail?id=1_3GfxZIwws5EAsw5IzXq2UQ5BygyoIs-&sz=w1000" alt="Avatar" class="char-avatar" id="char-avatar">
+            <div class="avatar-tooltip">点击可以更换头像</div>
+            <p class="char-dialogue" id="char-dialogue">₍ᐢ⸝⸝• ֊•⸝⸝₎</p>
+        </div>
+
+        <div class="activity-display">
+          <div class="cat-decoration">₊⁺ ꒰১┈┈┈ ♡ ┈┈┈໒꒱ ⁺₊</div>
+          <h2 class="activity-text" id="activity-text">选择一个季节开始吧~</h2>
+          <button class="action-button" id="action-button">我想和你⁽⁽ଘ( ˙꒳˙ )ଓ⁾⁾</button>
+        </div>
+
+        <div class="season-selector">
+          <button class="season-btn" data-season="spring">春🌸</button>
+          <button class="season-btn" data-season="summer">夏🍀</button>
+          <button class="season-btn" data-season="autumn">秋🍁</button>
+          <button class="season-btn" data-season="winter">冬❄️</button>
+        </div>
+
+    </div>
+    
+    <!-- 头像上传模态框 -->
+    <div class="avatar-modal" id="avatar-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">上传自定义头像</h3>
+            <img id="avatar-preview" class="avatar-preview" src="https://drive.google.com/thumbnail?id=1_3GfxZIwws5EAsw5IzXq2UQ5BygyoIs-&sz=w1000" alt="头像预览">
+            <p style="color: var(--text-color); margin-bottom: 20px;">选择一张图片作为角色的头像</p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel-btn" id="cancel-upload">取消</button>
+                <button class="modal-btn confirm-btn" id="confirm-upload">使用这个头像</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const themes = {
+          spring: { '--bg-color': '#FFEBE5', '--primary-color': '#FFC9F0', '--secondary-color': '#C7EE65', '--text-color': '#a23107', '--cat-ear-color': '#FFC9F0' },
+          summer: { '--bg-color': '#CCE198', '--primary-color': '#A7C587', '--secondary-color': '#81AD70', '--text-color': '#4a412a', '--cat-ear-color': '#A7C587' },
+          autumn: { '--bg-color': '#ffc267', '--primary-color': '#e0631c', '--secondary-color': '#a23107', '--text-color': '#4a412a', '--cat-ear-color': '#e0631c' },
+          winter: { '--bg-color': '#ebefff', '--primary-color': '#86a6df', '--secondary-color': '#5068a9', '--text-color': '#1c1a17', '--cat-ear-color': '#86a6df' },
+        };
+
+        const activities = {
+          spring: ["一起去赏樱花", "在花田里野餐", "放飞一只风筝", "给我念一首关于春天的诗", "制作草莓大福", "在樱花树下拍合照", "去郊外骑自行车", "收集不同颜色的花瓣", "在雨后寻找彩虹", "领养一只小猫"],
+          summer: ["一起去海边游泳", "分享一个冰镇西瓜", "在夜晚的院子里抓萤火虫", "去看一场夏日焰火大会", "躺在草地上看星星", "制作一杯柠檬汽水", "去水族馆看海豚表演", "在暴雨天看恐怖电影", "一起玩水枪大战", "吃遍街角的冰淇淋店"],
+          autumn: ["一起去捡枫叶", "分享一个烤红薯", "穿上情侣款毛衣", "去电影院看一场新上映的电影", "在落叶铺成的地毯上", "泡一次暖暖的温泉", "制作南瓜灯", "去果园采摘苹果", "一起看一场日落", "窝在沙发里盖同一条毯子"],
+          winter: ["一起堆一个雪人", "在壁炉前喝热可可", "装饰一棵圣诞树", "交换一份新年礼物", "在雪地里打雪仗", "手牵手走在下雪的街道上", "吃一顿热气腾腾的火锅", "在结冰的湖面上滑冰", "给我一个温暖的拥抱", "一起赖床到中午"],
+        };
+
+        const dialogues = {
+          spring: {
+          "一起去赏樱花": "哦？赏花？可以，不过得找个没人的地方。人太多，会影响我欣赏你的表情。",
+          "在花田里野餐": "野餐？听起来不错。食物由我准备，你只需要负责坐在那里，让我看着就好。",
+          "放飞一只风筝": "风筝…幼稚的游戏。不过，看着线在你手里，似乎也别有一番趣味。",
+          "给我念一首关于春天的诗": "念诗？我的小制作人品味还挺高雅。可以，作为交换，今晚你要听我的。",
+          "制作草莓大福": "你来做？那我可要好好品尝了，不管是草莓，还是…你。",
+          "在樱花树下拍合照": "拍照？可以，这张照片的版权归我所有。我要把它设为我的私人终端桌面。",
+          "去郊外骑自行车": "不错的提议，正好可以看看你的体力有多差。",
+          "收集不同颜色的花瓣": "收集这些做什么？做成干花，夹在你送我的第一份项目策划书里？有意思。",
+          "在雨后寻找彩虹": "彩虹？呵，小孩子的把戏。不过，如果你想看，我可以让公司人工造一个，只为你一个人出现。",
+          "领养一只小猫": "猫？也好，至少它比你诚实，喜欢就是喜欢，不会嘴硬。"
+          },
+          summer: {
+          "一起去海边游泳": "海边？我的小制作人终于肯展示一下自己了吗？我拭目以待。",
+          "分享一个冰镇西瓜": "可以，但我要最甜的那一块。当然，我是说西瓜。",
+          "在夜晚的院子里抓萤火虫": "萤火虫…廉价的光芒。不过，若是你喜欢，那它就有了价值。",
+          "去看一场夏日焰火大会": "焰火？绚烂又短暂，就像一场豪赌。我喜欢。结束后，我们来赌点别的。",
+          "躺在草地上看星星": "你对天文学也有研究？还是只是单纯喜欢这种无聊的浪漫？",
+          "制作一杯柠檬汽水": "你亲手做的？我可要尝尝，是酸的，还是甜的。",
+          "去水族馆看海豚表演": "看那些被驯服的生物表演？呵，真无聊。不如看我怎么'驯服'你。",
+          "在暴雨天看恐怖电影": "哦？这个提议我喜欢。如果害怕，我的怀抱随时为你敞开。",
+          "一起玩水枪大战": "水枪？小孩子的游戏。不过，把你弄得湿淋淋的，听起来很有趣。",
+          "吃遍街角的冰淇淋店": "包下整条街的所有冰淇淋店，让你一次吃个够，如何？"
+          },
+          autumn: {
+          "一起去捡枫叶": "捡枫叶？好吧，就当是陪你进行这种充满…童趣的活动。",
+          "分享一个烤红薯": "嗯，很温暖的感觉。就像…你偶尔脸红的样子。",
+          "穿上情侣款毛衣": "情侣款？你这是在主动宣示所有权吗，我的小制作人？我接受了。",
+          "去电影院看一场新上映的电影": "只要不是无聊的爱情片就行。我更喜欢看些…刺激的。",
+          "在落叶铺成的地毯上": "踩在这些'失败者'的残骸上…嗯，不错的体验。",
+          "泡一次暖暖的温泉": "温泉？这可是个危险的提议。你确定要和我一起？",
+          "制作南瓜灯": "在上面刻上我的名字，如何？让所有人都知道，你是我的。",
+          "去果园采摘苹果": "摘苹果？好吧，希望你的身高够得着。",
+          "一起看一场日落": "看着一天走向终结…然后，夜晚的游戏就可以开始了。",
+          "窝在沙发里盖同一条毯子": "一张毯子就够了，反正你最后还是会缩到我怀里来。"
+          },
+          winter: {
+          "一起堆一个雪人": "堆雪人？就堆一个你的样子，然后…我要在它脸上画一只小猫。",
+          "在壁炉前喝热可可": "不错的氛围。很适合…谈一些'深入'的话题。",
+          "装饰一棵圣诞树": "把最亮的那颗星挂在顶上，就像你在我眼中一样。",
+          "交换一份新年礼物": "我的礼物就是我自己。而你的…也只能是我。",
+          "在雪地里打雪仗": "别指望我会手下留情，我会把你埋进雪里，直到你求饶为止。",
+          "手牵手走在下雪的街道上": "很好，这样你就不会乱跑了。记得牵紧点。",
+          "吃一顿热气騰騰的火锅": "很温暖。不过，没什么比你的体温更让我着迷。",
+          "在结冰的湖面上滑冰": "如果你摔倒了，我可不会扶你。我会…抱着你一起摔下去。",
+          "给我一个温暖的拥抱": "主动投怀送抱？我的小制作人终于开窍了。",
+          "一起赖床到中午": "一整天都可以。我们有很多事可以在床上做，不只是睡觉。"
+          }
+        };
+
+        let currentSeason = 'spring';
+        let activityInterval;
+        let isPaused = true;
+        let customAvatarUrl = null;
+
+        const activityTextElem = document.getElementById('activity-text');
+        const actionButton = document.getElementById('action-button');
+        const responseArea = document.getElementById('response-area');
+        const charDialogueElem = document.getElementById('char-dialogue');
+        const charAvatarElem = document.getElementById('char-avatar');
+        const seasonButtons = document.querySelectorAll('.season-btn');
+        const avatarUploadElem = document.getElementById('avatar-upload');
+        const avatarModalElem = document.getElementById('avatar-modal');
+        const avatarPreviewElem = document.getElementById('avatar-preview');
+        const cancelUploadBtn = document.getElementById('cancel-upload');
+        const confirmUploadBtn = document.getElementById('confirm-upload');
+
+        // 新的默认头像URL（已转换为Google Drive缩略图链接）
+        const defaultAvatarUrl = "https://drive.google.com/thumbnail?id=1_3GfxZIwws5EAsw5IzXq2UQ5BygyoIs-&sz=w1000";
+        // 备用头像URL（以防Google Drive链接失效）
+        const fallbackAvatarUrl = "https://images.unsplash.com/photo-1514888286974-6d03bdeacba8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80";
+
+        // 设置季节主题
+        function setSeason(season) {
+          currentSeason = season;
+          const theme = themes[season];
+          for (const key in theme) {
+          document.documentElement.style.setProperty(key, theme[key]);
+          }
+          
+          seasonButtons.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.season === season);
+          });
+
+          if (!isPaused) {
+          startRolling();
+          } else {
+          const currentActivities = activities[currentSeason];
+          const randomActivity = currentActivities[Math.floor(Math.random() * currentActivities.length)];
+          activityTextElem.textContent = randomActivity;
+          }
+        }
+
+        // 获取随机活动
+        function getRandomActivity() {
+          const currentActivities = activities[currentSeason];
+          return currentActivities[Math.floor(Math.random() * currentActivities.length)];
+        }
+
+        // 开始滚动活动
+        function startRolling() {
+          clearInterval(activityInterval);
+          responseArea.style.display = 'none';
+          activityInterval = setInterval(() => {
+          activityTextElem.textContent = getRandomActivity();
+          }, 100);
+        }
+
+        // 停止滚动并显示对话
+        function stopRolling() {
+          clearInterval(activityInterval);
+          const currentActivity = activityTextElem.textContent;
+          const dialogue = dialogues[currentSeason][currentActivity] || "ε(*･ω･)_/ﾟ:･☆";
+          charDialogueElem.textContent = dialogue;
+          responseArea.style.display = 'flex';
+        }
+
+        // 显示头像上传模态框
+        function showAvatarModal() {
+          avatarModalElem.style.display = 'flex';
+        }
+
+        // 隐藏头像上传模态框
+        function hideAvatarModal() {
+          avatarModalElem.style.display = 'none';
+        }
+
+        // 处理头像上传
+        function handleAvatarUpload(event) {
+          const file = event.target.files[0];
+          if (!file) return;
+          
+          // 检查文件类型
+          if (!file.type.match('image.*')) {
+            alert('请选择图片文件');
+            return;
+          }
+          
+          // 检查文件大小（限制为2MB）
+          if (file.size > 2 * 1024 * 1024) {
+            alert('图片大小不能超过2MB');
+            return;
+          }
+          
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            // 更新预览
+            avatarPreviewElem.src = e.target.result;
+            showAvatarModal();
+          };
+          reader.readAsDataURL(file);
+          
+          // 重置input，以便可以再次选择同一文件
+          event.target.value = '';
+        }
+
+        // 确认使用新头像
+        function confirmNewAvatar() {
+          customAvatarUrl = avatarPreviewElem.src;
+          charAvatarElem.src = customAvatarUrl;
+          
+          // 保存到本地存储
+          try {
+            localStorage.setItem('customAvatar', customAvatarUrl);
+          } catch (e) {
+            console.log('本地存储失败，但头像已更新');
+          }
+          
+          hideAvatarModal();
+        }
+
+        // 加载保存的头像
+        function loadSavedAvatar() {
+          try {
+            const savedAvatar = localStorage.getItem('customAvatar');
+            if (savedAvatar) {
+              customAvatarUrl = savedAvatar;
+              charAvatarElem.src = customAvatarUrl;
+              avatarPreviewElem.src = customAvatarUrl;
+            } else {
+              // 使用默认头像
+              charAvatarElem.src = defaultAvatarUrl;
+              avatarPreviewElem.src = defaultAvatarUrl;
+            }
+          } catch (e) {
+            console.log('无法加载保存的头像，使用默认头像');
+            charAvatarElem.src = defaultAvatarUrl;
+            avatarPreviewElem.src = defaultAvatarUrl;
+          }
+        }
+
+        // 检查默认头像是否可加载
+        function checkDefaultAvatar() {
+          const img = new Image();
+          img.onload = function() {
+            console.log('默认头像加载成功');
+          };
+          img.onerror = function() {
+            console.log('默认头像加载失败，使用备用头像');
+            charAvatarElem.src = fallbackAvatarUrl;
+            avatarPreviewElem.src = fallbackAvatarUrl;
+          };
+          img.src = defaultAvatarUrl;
+        }
+
+        // 事件监听器
+        actionButton.addEventListener('click', () => {
+          if (isPaused) {
+          actionButton.textContent = '就是这个(꜆꜄꜆˙꒳˙)꜆꜄꜆';
+          startRolling();
+          } else {
+          actionButton.textContent = '我想和你⁽⁽ଘ( ˙꒳˙ )ଓ⁾⁾';
+          stopRolling();
+          }
+          isPaused = !isPaused;
+        });
+
+        seasonButtons.forEach(button => {
+          button.addEventListener('click', () => {
+          setSeason(button.dataset.season);
+          });
+        });
+
+        // 头像上传相关事件
+        avatarUploadElem.addEventListener('change', handleAvatarUpload);
+        charAvatarElem.addEventListener('click', () => {
+          avatarUploadElem.click();
+        });
+        cancelUploadBtn.addEventListener('click', hideAvatarModal);
+        confirmUploadBtn.addEventListener('click', confirmNewAvatar);
+
+        // 点击模态框外部关闭
+        avatarModalElem.addEventListener('click', (e) => {
+          if (e.target === avatarModalElem) {
+            hideAvatarModal();
+          }
+        });
+
+        // 初始化
+        setSeason('spring');
+        actionButton.textContent = '我想和你⁽⁽ଘ( ˙꒳˙ )ଓ⁾⁾';
+        activityTextElem.textContent = '一起去赏樱花';
+        stopRolling();
+        loadSavedAvatar();
+        checkDefaultAvatar();
+
+    </script>
+</body>
+</html>
